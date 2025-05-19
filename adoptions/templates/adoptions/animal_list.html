@@ -1,0 +1,92 @@
+<!-- filepath: c:\Users\mizo2\Desktop\School pfe\Animal adoption\animal_adoption\adoptions\templates\adoptions\animal_list.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Adoptable Animals{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Adoptable Animals</h2>
+
+    <!-- Filter Bar -->
+    <form method="get" action="{% url 'animal_list' %}" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" name="breed" class="form-control" placeholder="Filter by breed" value="{{ breed_filter }}">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="race" class="form-control" placeholder="Filter by race" value="{{ race_filter }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-control">
+                    <option value="">Filter by status</option>
+                    <option value="available" {% if status_filter == "available" %}selected{% endif %}>Available</option>
+                    <option value="adopted" {% if status_filter == "adopted" %}selected{% endif %}>Adopted</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'animal_list' %}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Animal Cards -->
+    <div class="row">
+        {% for animal in animals %}
+        <div class="col-md-4">
+            <div class="card animal-card mb-4">
+                <img src="{{ animal.image.url }}" class="card-img-top" alt="{{ animal.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ animal.name }}</h5>
+                    <p class="card-text">
+                        Breed: {{ animal.breed }}<br>
+                        Race: {{ animal.race }}<br>
+                        Age: {{ animal.age }}<br>
+                        Location: {{ animal.location }}<br> <!-- Display the location -->
+                        Status: {{ animal.status }}
+                    </p>
+                    <a href="{% url 'animal_detail' animal.pk %}" class="btn btn-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if animals.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ animals.previous_page_number }}&breed={{ breed_filter }}&race={{ race_filter }}&status={{ status_filter }}">
+                    Previous
+                </a>
+            </li>
+        {% endif %}
+        {% for page_num in animals.paginator.page_range %}
+            <li class="page-item {% if page_num == animals.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ page_num }}&breed={{ breed_filter }}&race={{ race_filter }}&status={{ status_filter }}">
+                    {{ page_num }}
+                </a>
+            </li>
+        {% endfor %}
+        {% if animals.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ animals.next_page_number }}&breed={{ breed_filter }}&race={{ race_filter }}&status={{ status_filter }}">
+                    Next
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
+

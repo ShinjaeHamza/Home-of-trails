@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>My Adoption Applications</h2>
+    <ul class="list-group">
+        {% for application in applications %}
+            <li class="list-group-item">
+                <strong>Animal:</strong> {{ application.animal.name }}<br>
+                <strong>Status:</strong> {{ application.status|title }}<br>
+                <strong>Applied At:</strong> {{ application.applied_at|date:"Y-m-d H:i" }}
+            </li>
+        {% empty %}
+            <li class="list-group-item">You have not submitted any applications yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

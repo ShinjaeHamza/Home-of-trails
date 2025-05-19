@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Your Dashboard</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Animal</th>
+            <th>Status</th>
+            <th>Submitted At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for application in applications %}
+        <tr>
+            <td>{{ application.animal.name }}</td>
+            <td>{{ application.status }}</td>
+            <td>{{ application.applied_at }}</td>
+            <td>
+                {% if application.status == 'pending' %}
+                    <a href="{% url 'withdraw_application' application.pk %}">Withdraw</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Welcome to Your Dashboard</h1>
+    <p>Here you can manage your profile, view your applications, and more.</p>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Profile</h5>
+                    <p class="card-text">Update your profile information.</p>
+                    <a href="{% url 'profile' %}" class="btn btn-primary">Go to Profile</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Applications</h5>
+                    <p class="card-text">View your adoption applications.</p>
+                    <a href="{% url 'application_list' %}" class="btn btn-primary">View Applications</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

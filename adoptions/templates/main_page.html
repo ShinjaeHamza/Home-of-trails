@@ -1,0 +1,114 @@
+<!-- filepath: c:\Users\mizo2\Desktop\School pfe\Animal adoption\animal_adoption\adoptions\templates\main_page.html -->
+{% extends 'base.html' %}
+{% load static %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% block title %}
+Welcome to Home for Tails
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Hero Section -->
+    <div class="text-center mb-5">
+        <h1>Welcome to Home for Tails</h1>
+        <p class="lead">Find your perfect companion and give them a loving home!</p>
+        <a href="{% url 'animal_list' %}" class="btn btn-primary btn-lg">View Adoptable Animals</a>
+    </div>
+
+    <!-- Why Adopt Section -->
+    <div class="row my-5">
+        <div class="col-md-6">
+            <h2>Why You Should Adopt</h2>
+            <p>Adopting a pet is a life-changing decision that not only saves an animal's life but also brings joy and companionship to your home. Here are some reasons to adopt:</p>
+            <ul>
+                <li>Save a life and reduce overpopulation in shelters.</li>
+                <li>Gain a loyal and loving companion.</li>
+                <li>Support ethical treatment of animals.</li>
+                <li>Adopted pets are often vaccinated and trained.</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <img src="{% static 'images/Main_page.webp' %}" alt="Adopt a Pet" class="img-fluid rounded">
+        </div>
+    </div>
+
+    <!-- Featured Animals Section -->
+    <div class="my-5">
+        <h2 class="text-center">Meet Some of Our Adoptable Animals</h2>
+        <div class="row" id="animal-cards">
+            {% for animal in animals %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ animal.image.url }}" class="card-img-top" alt="{{ animal.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ animal.name }}</h5>
+                        <p class="card-text">
+                            Breed: {{ animal.breed }}<br>
+                            Age: {{ animal.age }}<br>
+                            Status: {{ animal.status }}
+                        </p>
+                        <a href="{% url 'animal_detail' animal.pk %}" class="btn btn-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+       
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center my-5">
+        <h2>Ready to Make a Difference?</h2>
+        <p>Start your journey to finding your perfect companion today!</p>
+        <a href="{% url 'register' %}" class="btn btn-success btn-lg">Register Now</a>
+    </div>
+</div>
+{% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const loadMoreButton = document.getElementById('load-more');
+        const animalCardsContainer = document.getElementById('animal-cards');
+
+        loadMoreButton.addEventListener('click', function () {
+            const offset = parseInt(loadMoreButton.getAttribute('data-offset'));
+
+            fetch(`?offset=${offset}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                data.animals.forEach(animal => {
+                    const card = `
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <img src="${animal.image_url}" class="card-img-top" alt="${animal.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${animal.name}</h5>
+                                    <p class="card-text">
+                                        Breed: ${animal.breed}<br>
+                                        Age: ${animal.age}<br>
+                                        Status: ${animal.status}
+                                    </p>
+                                    <a href="${animal.detail_url}" class="btn btn-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    animalCardsContainer.insertAdjacentHTML('beforeend', card);
+                });
+
+                // Update the offset
+                loadMoreButton.setAttribute('data-offset', offset + 3);
+
+                // Hide the button if no more animals are available
+                if (data.animals.length < 3) {
+                    loadMoreButton.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+</script>

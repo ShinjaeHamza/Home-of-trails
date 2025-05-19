@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Application List</title>
+</head>
+<body>
+    <h1>Adoption Applications</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Applicant Name</th>
+                <th>Animal</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.applicant_name }}</td>
+                <td>{{ app.animal.name }}</td>
+                <td>{{ app.status }}</td>
+                <td>
+                    {% if app.status == 'pending' %}
+                        <a href="{% url 'approve_application' app.pk %}">Approve</a> |
+                        <a href="{% url 'reject_application' app.pk %}">Reject</a>
+                    {% else %}
+                        {{ app.status|capfirst }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
