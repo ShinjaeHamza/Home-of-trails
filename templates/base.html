@@ -34,19 +34,31 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'profile' %}">{{ user.username }}</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link position-relative" href="{% url 'notifications' %}">
-                    <i class="bi bi-bell"></i>
-                    {% if unread_notifications_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ unread_notifications_count }}
-                        </span>
-                    {% endif %}
-                </a>
+           <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        🔔
+        {% if unread_notifications_count > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ unread_notifications_count }}
+            </span>
+        {% endif %}
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+        {% for notification in notifications %}
+            <li class="dropdown-item {% if not notification.is_read %}bg-warning-subtle{% endif %}">
+                {{ notification.message|truncatechars:50 }}<br>
+                <small class="text-muted">{{ notification.created_at|date:"M d, H:i" }}</small>
             </li>
+        {% empty %}
+            <li class="dropdown-item text-muted">No notifications</li>
+        {% endfor %}
+    </ul>
+</li>
+
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
+            
         {% else %}
             <!-- Links for Logged-Out Users -->
             <li class="nav-item">

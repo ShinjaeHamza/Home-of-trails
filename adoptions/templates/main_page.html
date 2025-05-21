@@ -1,13 +1,16 @@
-<!-- filepath: c:\Users\mizo2\Desktop\School pfe\Animal adoption\animal_adoption\adoptions\templates\main_page.html -->
 {% extends 'base.html' %}
 {% load static %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
 {% block title %}
 Welcome to Home for Tails
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <div class="container my-5">
     <!-- Hero Section -->
     <div class="text-center mb-5">
@@ -15,6 +18,12 @@ Welcome to Home for Tails
         <p class="lead">Find your perfect companion and give them a loving home!</p>
         <a href="{% url 'animal_list' %}" class="btn btn-primary btn-lg">View Adoptable Animals</a>
     </div>
+
+    <!-- Map Section -->
+<div class="container my-5">
+    <h2 class="text-center text-primary mb-4">Where Our Pets Are Located</h2>
+    <div id="map" style="height: 500px; border-radius: 10px;"></div>
+</div>
 
     <!-- Why Adopt Section -->
     <div class="row my-5">
@@ -54,7 +63,6 @@ Welcome to Home for Tails
             </div>
             {% endfor %}
         </div>
-       
     </div>
 
     <!-- Call to Action -->
@@ -65,50 +73,45 @@ Welcome to Home for Tails
     </div>
 </div>
 {% endblock %}
+
+{% block extra_scripts %}
+<!-- Leaflet JS (after DOM is ready) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const loadMoreButton = document.getElementById('load-more');
-        const animalCardsContainer = document.getElementById('animal-cards');
+    const animals = [
+        {% for animal in map_animals %}
+        {
+            name: "{{ animal.name|escapejs }}",
+            breed: "{{ animal.breed|escapejs }}",
+            age: "{{ animal.age }}",
+            status: "{{ animal.status }}",
+            image_url: "{{ animal.image.url }}",
+            latitude: {{ animal.latitude }},
+            longitude: {{ animal.longitude }},
+            detail_url: "{% url 'animal_detail' animal.pk %}"
+        },
+        {% endfor %}
+    ];
 
-        loadMoreButton.addEventListener('click', function () {
-            const offset = parseInt(loadMoreButton.getAttribute('data-offset'));
+    const map = L.map('map').setView([33.9716, -6.8498], 6); // Default view
 
-            fetch(`?offset=${offset}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                data.animals.forEach(animal => {
-                    const card = `
-                        <div class="col-md-4">
-                            <div class="card mb-4">
-                                <img src="${animal.image_url}" class="card-img-top" alt="${animal.name}">
-                                <div class="card-body">
-                                    <h5 class="card-title">${animal.name}</h5>
-                                    <p class="card-text">
-                                        Breed: ${animal.breed}<br>
-                                        Age: ${animal.age}<br>
-                                        Status: ${animal.status}
-                                    </p>
-                                    <a href="${animal.detail_url}" class="btn btn-primary">Learn More</a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    animalCardsContainer.insertAdjacentHTML('beforeend', card);
-                });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-                // Update the offset
-                loadMoreButton.setAttribute('data-offset', offset + 3);
-
-                // Hide the button if no more animals are available
-                if (data.animals.length < 3) {
-                    loadMoreButton.style.display = 'none';
-                }
-            });
-        });
+    animals.forEach(animal => {
+        const marker = L.marker([animal.latitude, animal.longitude]).addTo(map);
+        const popupContent = `
+            <div style="text-align: center;">
+                <img src="${animal.image_url}" alt="${animal.name}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;"><br>
+                <strong>${animal.name}</strong><br>
+                ${animal.breed} - ${animal.age} years<br>
+                <a href="${animal.detail_url}" class="btn btn-sm btn-primary mt-1">View</a>
+            </div>
+        `;
+        marker.bindPopup(popupContent);
     });
-    
 </script>
+{% endblock %}

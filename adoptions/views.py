@@ -1,10 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
-
-# adoptions/views.py
-# adoptions/views.
-
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Animal, AdoptionApplication
 from .forms import AdoptionApplicationForm
@@ -34,6 +28,8 @@ from .forms import CustomUserCreationForm
 from .models import Animal
 from .models import Notification
 from django.core.paginator import Paginator
+from adoptions.models import Animal  # Adjust the import based on your app structure
+
 
 
 def animal_list(request):
@@ -223,9 +219,18 @@ from django.shortcuts import render
 from .models import Animal
 
 def main_page(request):
-    # Filter animals to exclude those with the status "adopted"
-    animals = Animal.objects.filter(status='available')[:3]  # Show only the first 3 animals initially
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # Check if it's an AJAX request
+    # Featured animals for initial display (cards)
+    animals = Animal.objects.filter(status='available')[:3]
+
+    # Full list of animals with valid coordinates for the map
+    map_animals = Animal.objects.filter(
+        status='available',
+        latitude__isnull=False,
+        longitude__isnull=False
+    )
+
+    # Handle AJAX "Load More"
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         offset = int(request.GET.get('offset', 0))
         animals = Animal.objects.filter(status='available')[offset:offset + 3]
         animal_data = [
@@ -240,22 +245,29 @@ def main_page(request):
             for animal in animals
         ]
         return JsonResponse({'animals': animal_data})
-    return render(request, 'main_page.html', {'animals': animals})
+
+    # Regular request: render template
+    return render(request, 'main_page.html', {
+        'animals': animals,
+        'map_animals': map_animals,
+    })
+
 def dashboard(request):
     return render(request, 'adoptions/dashboard.html')
 
-def profile_view(request):
-    # Example: Display notifications on the profile page
-    return render(request, 'registration/profile.html', {
-        'messages': messages.get_messages(request),
-    })
-@login_required
-def notifications_view(request):
-    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'adoptions/notifications.html', {'notifications': notifications})
 
 @login_required
 def application_list(request):
     applications = AdoptionApplication.objects.filter(applicant_name=request.user.username).order_by('-applied_at')
     return render(request, 'adoptions/application_list.html', {'applications': applications})
+
+def notifications_context(request):
+    if request.user.is_authenticated:
+        user_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:10]
+        unread_count = user_notifications.filter(is_read=False).count()
+        return {
+            'notifications': user_notifications,
+            'unread_notifications_count': unread_count
+        }
+    return {}
 

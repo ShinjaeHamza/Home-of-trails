@@ -16,5 +16,4 @@ urlpatterns = [
     path('dashboard/', views.user_dashboard, name='user_dashboard'),  # User dashboard
     path('applications/<int:pk>/withdraw/', views.withdraw_application, name='withdraw_application'),  # Withdraw application
     path('profile/update/', views.update_profile, name='update_profile'),  # Update profile
-    path('notifications/', views.notifications_view, name='notifications'),  # Notifications
 ]

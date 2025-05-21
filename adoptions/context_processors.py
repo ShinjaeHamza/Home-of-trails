@@ -2,6 +2,13 @@ from .models import Notification
 
 def unread_notifications(request):
     if request.user.is_authenticated:
-        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
-        return {'unread_notifications_count': unread_count}
-    return {'unread_notifications_count': 0}
+        unread = Notification.objects.filter(user=request.user, is_read=False)
+        return {'unread_notifications': unread}
+    return {'unread_notifications': []}
+
+
+def notifications_context(request):
+    if request.user.is_authenticated:
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        return {'notifications': notifications}
+    return {'notifications': []}

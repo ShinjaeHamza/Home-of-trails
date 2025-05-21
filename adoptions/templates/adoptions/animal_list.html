@@ -1,4 +1,3 @@
-<!-- filepath: c:\Users\mizo2\Desktop\School pfe\Animal adoption\animal_adoption\adoptions\templates\adoptions\animal_list.html -->
 {% extends "base.html" %}
 {% load static %}
 
@@ -8,29 +7,53 @@
 <div class="container my-5">
     <h2>Adoptable Animals</h2>
 
+    <!-- Inline CSS for Filter Bar -->
+    <style>
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .filter-bar .form-control {
+            width: auto;
+            min-width: 140px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+        }
+
+        .filter-bar .btn {
+            padding: 6px 16px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-bar .form-control,
+            .filter-bar .btn {
+                width: 100%;
+            }
+        }
+    </style>
+
     <!-- Filter Bar -->
-    <form method="get" action="{% url 'animal_list' %}" class="mb-4">
-        <div class="row">
-            <div class="col-md-4">
-                <input type="text" name="breed" class="form-control" placeholder="Filter by breed" value="{{ breed_filter }}">
-            </div>
-            <div class="col-md-4">
-                <input type="text" name="race" class="form-control" placeholder="Filter by race" value="{{ race_filter }}">
-            </div>
-            <div class="col-md-4">
-                <select name="status" class="form-control">
-                    <option value="">Filter by status</option>
-                    <option value="available" {% if status_filter == "available" %}selected{% endif %}>Available</option>
-                    <option value="adopted" {% if status_filter == "adopted" %}selected{% endif %}>Adopted</option>
-                </select>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12 text-end">
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                <a href="{% url 'animal_list' %}" class="btn btn-secondary">Clear Filters</a>
-            </div>
-        </div>
+    <form method="get" action="{% url 'animal_list' %}" class="filter-bar">
+        <input type="text" name="breed" class="form-control" placeholder="Breed" value="{{ breed_filter }}">
+        <input type="text" name="race" class="form-control" placeholder="Race" value="{{ race_filter }}">
+        <select name="status" class="form-control">
+            <option value="">Status</option>
+            <option value="available" {% if status_filter == "available" %}selected{% endif %}>Available</option>
+            <option value="adopted" {% if status_filter == "adopted" %}selected{% endif %}>Adopted</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <a href="{% url 'animal_list' %}" class="btn btn-secondary">Clear Filters</a>
     </form>
 
     <!-- Animal Cards -->
@@ -45,7 +68,7 @@
                         Breed: {{ animal.breed }}<br>
                         Race: {{ animal.race }}<br>
                         Age: {{ animal.age }}<br>
-                        Location: {{ animal.location }}<br> <!-- Display the location -->
+                        Location: {{ animal.location }}<br>
                         Status: {{ animal.status }}
                     </p>
                     <a href="{% url 'animal_detail' animal.pk %}" class="btn btn-primary">Learn More</a>
@@ -55,6 +78,7 @@
         {% endfor %}
     </div>
 </div>
+
 <!-- Pagination -->
 <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
@@ -81,12 +105,9 @@
         {% endif %}
     </ul>
 </nav>
-
-
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
-
